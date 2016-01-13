@@ -9,7 +9,7 @@ using tannus.ds.StringUtils;
 using Lambda;
 using tannus.ds.ArrayTools;
 
-class AssetsController extends Controller {
+class AssetsController extends Controller<Dynamic> {
 /* === Instance Methods === */
 
 	/**

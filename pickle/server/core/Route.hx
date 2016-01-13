@@ -10,7 +10,7 @@ import tannus.ds.Obj;
 
 class Route {
 	/* Constructor Function */
-	public function new(owner:Application, gs:GlobStar, c:Class<Controller>):Void {
+	public function new(owner:Application, gs:GlobStar, c:Class<Controller<Dynamic>>):Void {
 		app = owner;
 		pattern = gs;
 		controller = c;
@@ -53,7 +53,7 @@ class Route {
 	  */
 	@:access( pickle.server.mvc.Controller )
 	private function create(req : Request):Void {
-		var ctrl:Controller = Type.createInstance(controller, untyped [this, req]);
+		var ctrl:Controller<Dynamic> = Type.createInstance(controller, untyped [this, req]);
 		ctrl.__init();
 	}
 
@@ -61,7 +61,7 @@ class Route {
 
 	public var app : Application;
 	public var pattern : GlobStar;
-	public var controller : Class<Controller>;
+	public var controller : Class<Controller<Dynamic>>;
 
 	public var data : Null<Obj> = null;
 }

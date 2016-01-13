@@ -4,10 +4,14 @@ import tannus.xml.Elem;
 import tannus.css.StyleSheet;
 import tannus.ds.Memory in Mem;
 
-class Document extends Elem {
+import pickle.core.XmlTemplate;
+
+class Document extends XmlTemplate<Dynamic> {
 	/* Constructor Function */
 	public function new():Void {
-		super( 'html' );
+		super();
+
+		tag = 'html';
 
 		doctype = 'html';
 		head = new Elem('head', this);

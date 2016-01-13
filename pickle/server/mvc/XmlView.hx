@@ -15,7 +15,7 @@ class XmlView extends View {
 	  */
 	override public function execute(ctx : Obj):Void {
 		var tree = buildTree( ctx );
-		res.write(tree.print( true ));
+		res.writeXml( tree );
 	}
 
 	/**

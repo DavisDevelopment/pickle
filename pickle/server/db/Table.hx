@@ -19,16 +19,24 @@ class Table {
 /* === Instance Methods === */
 
 	/**
+	  * perform an SQL query
+	  */
+	public inline function exec(sql : String):ResultSet {
+		return con.query(this, sql);
+	}
+
+	/**
 	  * perform a SELECT query
 	  */
-	public function select<T>(what : String):SelectQuery<T> {
+	public function select(what : String):SelectQuery {
 		return new SelectQuery(this, what);
 	}
 
 	/**
 	  * perform an INSERT
 	  */
-	public function insert(row : Obj):ResultSet<Dynamic> {
+	@:access(pickle.server.db.Connection)
+	public function insert(row : Obj):Row {
 		var columns:Array<String> = new Array();
 		var values:Array<String> = new Array();
 		for (col in row.keys()) {
@@ -38,7 +46,12 @@ class Table {
 		var scols = columns.join(', ').wrap('(', ')');
 		var svals = values.join(', ').wrap('(', ')');
 		var sql = ('INSERT INTO $name $scols VALUES $svals');
-		return con.query( sql );
+		exec( sql );
+		
+		
+		var rowid = con.cn.lastInsertId();
+		var pk = primaryKey(), pkn = pk.name;
+		return select( '*' ).where( '$pkn=$rowid' ).get().row( 0 );
 	}
 
 	/**
@@ -47,19 +60,19 @@ class Table {
 	public function delete(where : Dynamic):Void {
 		var whereSql:String = compileWhere( where );
 		var sql:String = ('DELETE FROM $name ' + whereSql);
-		con.query( sql );
+		con.exec( sql );
 	}
 
 	/**
 	  * perform an UPDATE
 	  */
-	public function update(values:Obj, ?where:Dynamic):ResultSet<Dynamic> {
+	public function update(values:Obj, ?where:Dynamic):ResultSet {
 		var sql:String = 'UPDATE $name SET ';
 		sql += compileSets(values).join(', ');
 		if (where != null)
 			sql += (' '+ compileWhere( where ));
 		sql += ';';
-		return con.query( sql );
+		return exec( sql );
 	}
 
 	/**
@@ -114,24 +127,24 @@ class Table {
 			var colset_q = icon.table('COLUMNS').select(keys.join(', ')).where(clauses.toDyn());
 			var colset = colset_q.get();
 			icon.close();
-			var rawcols:Array<Obj> = [for (c in colset) Obj.fromDynamic( c )];
 			
 			var info:TableInfo = {
 				'columns': new Map()
 			};
 
-			for (raw in rawcols) {
+			for (raw in colset) {
 				var col:ColInfo = {
-					'name': raw['COLUMN_NAME'],
-					'type': raw['DATA_TYPE'],
-					'pos': raw['ORDINAL_POSITION'],
-					'primary': (cast(raw['COLUMN_KEY'], String) == 'PRI'),
-					'nullable': switch (cast(raw['IS_NULLABLE'], String).toLowerCase()) {
+					'name': raw.get('COLUMN_NAME'),
+					'type': raw.get('DATA_TYPE'),
+					'pos': raw.get('ORDINAL_POSITION'),
+					'primary': (cast(raw.get('COLUMN_KEY'), String) == 'PRI'),
+					'nullable': switch (cast(raw.get('IS_NULLABLE'), String).toLowerCase()) {
 						case 'yes': true;
 						case 'no' : false;
 						default: false;
 					}
 				};
+
 				info.columns[col.name] = col;
 			}
 
@@ -140,6 +153,25 @@ class Table {
 		else {
 			return _meta;
 		}
+	}
+
+	/**
+	  * check that [this] Table actually exists in the database
+	  */
+	@:access(pickle.server.db.Connection)
+	public function exists():Bool {
+		var i = con.info;
+		var dbi:Params = {
+			'host': i.host,
+			'user': i.user,
+			'pass': i.pass,
+			'database': 'information_schema'
+		};
+		var icon = Mysql.connect( dbi );
+		var tables = icon.table('TABLES');
+		var rows = tables.select( '*' ).where( 'TABLE_NAME="$name"' ).get();
+		icon.close();
+		return (rows.length > 0);
 	}
 
 	/**

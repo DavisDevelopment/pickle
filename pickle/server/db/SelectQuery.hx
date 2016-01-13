@@ -6,7 +6,7 @@ import tannus.ds.Obj;
 
 import Std.is;
 
-class SelectQuery<T> extends Query<T> {
+class SelectQuery extends Query {
 	/* Constructor Function */
 	public function new(t:Table, s:String):Void {
 		super( t );
@@ -20,7 +20,7 @@ class SelectQuery<T> extends Query<T> {
 	/**
 	  * Add a WHERE clause
 	  */
-	public function where(clause : Dynamic):SelectQuery<T> {
+	public function where(clause : Dynamic):SelectQuery {
 		if (is(clause, String)) {
 			wheres.push(cast clause);
 		}

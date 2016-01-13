@@ -3,7 +3,7 @@ package pickle.server.db;
 import pickle.server.db.*;
 
 @:access( pickle.server.db.Table )
-class Query<T> {
+class Query {
 	/* Constructor Function */
 	public function new(t : Table):Void {
 		table = t;
@@ -22,8 +22,8 @@ class Query<T> {
 	/**
 	  * perform [this] Query
 	  */
-	public function get():ResultSet<T> {
-		return table.con.query(genSql());
+	public function get():ResultSet {
+		return table.exec(genSql());
 	}
 
 /* === Instance Fields === */

@@ -20,7 +20,7 @@ class AppRouter {
 	/**
 	  * Add a new Route
 	  */
-	public function addRoute(pattern:GlobStar, ctrl:Class<Controller>):Route {
+	public function addRoute(pattern:GlobStar, ctrl:Class<Controller<Dynamic>>):Route {
 		var route = new Route(app, pattern, ctrl);
 		routes.push( route );
 		return route;

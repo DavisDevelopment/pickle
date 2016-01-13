@@ -31,8 +31,15 @@ class Connection {
 	/**
 	  * perform an SQL query
 	  */
-	public inline function query<T>(sql : String):ResultSet<T> {
+	public inline function exec(sql : String):sys.db.ResultSet {
 		return cn.request( sql );
+	}
+
+	/**
+	  * perform a table-based query
+	  */
+	public inline function query(t:Table, sql:String):ResultSet {
+		return new ResultSet(t, exec(sql));
 	}
 
 	/**

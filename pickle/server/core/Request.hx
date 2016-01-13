@@ -33,6 +33,7 @@ class Request {
 		if ( !Pw.cli ) {
 			__parseHeaders();
 			__parseParams();
+			__parseCookies();
 		}
 		else {
 			params = Obj.fromDynamic({});
@@ -54,6 +55,13 @@ class Request {
 	  */
 	private function __parseParams():Void {
 		params = Obj.fromDynamic(Web.getParams().toObject());
+	}
+
+	/**
+	  * get the cookies object
+	  */
+	private function __parseCookies():Void {
+		cookies = Obj.fromDynamic(Web.getCookies().toObject());
 	}
 
 /* === Computed Instance Fields === */
@@ -78,6 +86,9 @@ class Request {
 	/* the headers sent with [this] request */
 	public var headers : Map<String, String>;
 
-	/* the GET-parameters of [this] Request */
+	/* the GET+POST-parameters of [this] Request */
 	public var params : Obj;
+
+	/* the cookies erbject */
+	public var cookies : Obj;
 }

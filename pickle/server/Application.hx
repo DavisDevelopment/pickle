@@ -32,8 +32,10 @@ class Application {
 	public function start():Void {
 		run();
 	
+		session = new Session( this );
+		
 		router.run();
-
+		session.pushSessionState();
 		response.send();
 	}
 
@@ -47,7 +49,7 @@ class Application {
 	/**
 	  * Add a route to [this] Application
 	  */
-	public function route(pattern:String, ctrl:Class<Controller>):Route {
+	public function route(pattern:String, ctrl:Class<Controller<Dynamic>>):Route {
 		var gs = GlobStar.fromString( pattern );
 		return router.addRoute(gs, ctrl);
 	}
@@ -128,6 +130,18 @@ class Application {
 	}
 
 	/**
+	  * Create a Url to a page on [this] App
+	  */
+	public function getUrl(path : Path):Url {
+		path = (new Path(base_path) + path);
+		var url:Url = new Url();
+		url.hostname = hostname;
+		url.protocol = 'http';
+		url.path = path;
+		return url;
+	}
+
+	/**
 	  * obtain a database connection
 	  */
 	public inline function db_connect():Connection {
@@ -155,6 +169,9 @@ class Application {
 	/* whether [this] app is in command-line mode */
 	public var cli : Bool;
 
+	/* the current session */
+	public var session : Session;
+
 	/* the request in question */
 	public var request : Request;
 
@@ -169,4 +186,12 @@ class Application {
 
 	/* the mysql-connection params */
 	public var db_info : Params;
+
+	/* the domain [this] app will be stored at */
+	public var hostname : String = 'localhost';
+
+/* === Static Fields === */
+
+	/* the prefix that will be given to all table-names used internally by pickle */
+	public static var TABLEPREFIX:String = 'pickle_';
 }

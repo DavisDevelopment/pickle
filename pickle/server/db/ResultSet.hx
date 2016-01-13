@@ -3,25 +3,24 @@ package pickle.server.db;
 import sys.db.ResultSet in Results;
 
 using Lambda;
+using tannus.ds.ArrayTools;
 
 @:forward
-abstract ResultSet<T> (CResultSet<T>) from CResultSet<T> to CResultSet<T> {
+abstract ResultSet (CResultSet) to CResultSet {
 	/* Constructor Function */
-	public inline function new(c : CResultSet<T>):Void {
-		this = c;
+	public inline function new(t:Table, c:Results):Void {
+		this = new CResultSet(t, c);
 	}
 
 	@:arrayAccess
-	public inline function row(i : Int):T return this.row( i );
-
-	@:from
-	public static function fromResults<T>(r : Results):ResultSet<T> return new CResultSet(r);
+	public inline function row(i : Int):Row return this.row( i );
 }
 
-class CResultSet<T> {
+class CResultSet {
 	/* Constructor Function */
-	public function new(res : Results):Void {
+	public function new(t:Table, res:Results):Void {
 		src = res;
+		table = t;
 	}
 
 /* === Instance Methods === */
@@ -36,8 +35,8 @@ class CResultSet<T> {
 	/**
 	  * Get the next value in [this] set
 	  */
-	public function next():T {
-		return (untyped src.next());
+	public function next():Row {
+		return new Row(table, src.next());
 	}
 
 	/**
@@ -50,9 +49,9 @@ class CResultSet<T> {
 	/**
 	  * The full array of rows
 	  */
-	public function results():Array<T> {
+	public function results():Array<Row> {
 		if (_all == null) {
-			_all = cast src.results().array();
+			_all = cast src.results().array().macmap(new Row(table, _));
 		}
 		return _all;
 	}
@@ -60,7 +59,7 @@ class CResultSet<T> {
 	/**
 	  * get the row at the given index
 	  */
-	public inline function row(index : Int):T {
+	public inline function row(index : Int):Row {
 		return (results()[index]);
 	}
 
@@ -77,5 +76,6 @@ class CResultSet<T> {
 /* === Instance Fields === */
 
 	private var src : Results;
-	private var _all : Null<Array<T>> = null;
+	private var table : Table;
+	private var _all : Null<Array<Row>> = null;
 }
