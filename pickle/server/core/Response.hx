@@ -13,6 +13,8 @@ import pickle.server.dom.XMLResponsePrinter;
 import php.Lib;
 import php.Web;
 
+import haxe.Json;
+
 import pickle.server.Application;
 
 using tannus.ds.MapTools;
@@ -44,6 +46,22 @@ class Response {
 			}
 			sent = false;
 		}
+	}
+
+	/**
+	  * Send the specified file as a download
+	  */
+	public function downloadFile(path:Path, ?mime:Mime):Void {
+		if (mime == null) {
+			type = tannus.sys.Mimes.getMimeType( path.extension );
+		}
+		else {
+			type = mime;
+		}
+		headers['Content-Disposition'] = 'attachment; filename="${path.name}"';
+		send_preamble();
+		Lib.printFile(path.toString());
+		sent = true;
 	}
 
 	/**
@@ -119,6 +137,16 @@ class Response {
 	public function writeXml(node : Elem):Void {
 		var p = new XMLResponsePrinter(this);
 		p.generate( node );
+	}
+
+	/**
+	  * append encoded JSON data
+	  */
+	public function writeJson(data : Object):Void {
+		type = 'application/json';
+		sent = true;
+		send_preamble();
+		write(Json.stringify( data ));
 	}
 
 	/**
