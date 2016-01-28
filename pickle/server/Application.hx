@@ -68,6 +68,7 @@ class Application {
 		cli = Lib.isCli();
 		request = new Request( this );
 		response = new Response( this );
+		files = new FileManager( this );
 	}
 
 	/**
@@ -177,6 +178,9 @@ class Application {
 
 	/* the response to be sent */
 	public var response : Response;
+
+	/* a FileManager for [this] Application */
+	public var files : FileManager;
 
 	/* the base-path of [this] Application */
 	public var base_path : String;
