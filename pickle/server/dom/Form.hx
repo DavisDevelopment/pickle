@@ -35,4 +35,9 @@ class Form extends Elem {
 	public var action(get, set):String;
 	private inline function get_action():String return (exists('action')?get('action'):'');
 	private inline function set_action(v:String):String return set('action', v);
+
+	/* the enc-type of [this] Form */
+	public var enctype(get, set):String;
+	private inline function get_enctype():String return (exists('enctype')?get('enctype'):'');
+	private inline function set_enctype(v : String):String return set('enctype', v);
 }
