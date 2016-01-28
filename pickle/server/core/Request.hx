@@ -10,12 +10,12 @@ import php.Web;
 import pickle.server.Application;
 import pickle.server.Web in Pw;
 
+import haxe.io.Bytes;
+
 using tannus.ds.MapTools;
 using StringTools;
 using tannus.ds.StringUtils;
-
-class Request {
-	/* Constructor Function */
+class Request { /* Constructor Function */
 	public function new(owner : Application):Void {
 		app = owner;
 		method = Web.getMethod();
